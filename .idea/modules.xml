@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ZlwAudioRecorder.iml" filepath="$PROJECT_DIR$/ZlwAudioRecorder.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/recorderlib/recorderlib.iml" filepath="$PROJECT_DIR$/recorderlib/recorderlib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ZIwAudioRecorder.iml" filepath="$PROJECT_DIR$/.idea/modules/ZIwAudioRecorder.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ZIwAudioRecorder.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ZIwAudioRecorder.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/recorderlib/ZIwAudioRecorder.recorderlib.iml" filepath="$PROJECT_DIR$/.idea/modules/recorderlib/ZIwAudioRecorder.recorderlib.iml" />
     </modules>
   </component>
 </project>

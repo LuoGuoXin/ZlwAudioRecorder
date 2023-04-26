@@ -2,13 +2,13 @@ package com.zlw.main.recorderlib;
 
 
 import android.annotation.SuppressLint;
-import android.app.Application;
+import android.content.Context;
 
 import com.zlw.main.recorderlib.recorder.RecordConfig;
 import com.zlw.main.recorderlib.recorder.RecordHelper;
-import com.zlw.main.recorderlib.recorder.RecordService;
 import com.zlw.main.recorderlib.recorder.listener.RecordDataListener;
 import com.zlw.main.recorderlib.recorder.listener.RecordFftDataListener;
+import com.zlw.main.recorderlib.recorder.listener.RecordIngListener;
 import com.zlw.main.recorderlib.recorder.listener.RecordResultListener;
 import com.zlw.main.recorderlib.recorder.listener.RecordSoundSizeListener;
 import com.zlw.main.recorderlib.recorder.listener.RecordStateListener;
@@ -21,7 +21,7 @@ public class RecordManager {
     private static final String TAG = RecordManager.class.getSimpleName();
     @SuppressLint("StaticFieldLeak")
     private volatile static RecordManager instance;
-    private Application context;
+    private RecordConfig recordConfig;
 
     private RecordManager() {
     }
@@ -37,101 +37,80 @@ public class RecordManager {
         return instance;
     }
 
-    /**
-     * 初始化
-     *
-     * @param application Application
-     * @param showLog     是否开启日志
-     */
-    public void init(Application application, boolean showLog) {
-        this.context = application;
-        Logger.IsDebug = showLog;
+    public void init(Context context) {
+        getRecordConfig().setRecordDir(context.getCacheDir().getAbsolutePath() + "/");
     }
 
+
     public void start() {
-        if (context == null) {
-            Logger.e(TAG, "未进行初始化");
-            return;
-        }
         Logger.i(TAG, "start...");
-        RecordService.startRecording(context);
+        RecordHelper.getInstance().start();
     }
 
     public void stop() {
-        if (context == null) {
-            return;
-        }
-        RecordService.stopRecording(context);
+        RecordHelper.getInstance().stop();
     }
 
     public void resume() {
-        if (context == null) {
-            return;
-        }
-        RecordService.resumeRecording(context);
+        RecordHelper.getInstance().resume();
     }
 
     public void pause() {
-        if (context == null) {
-            return;
-        }
-        RecordService.pauseRecording(context);
+        RecordHelper.getInstance().pause();
     }
 
     /**
      * 录音状态监听回调
      */
     public void setRecordStateListener(RecordStateListener listener) {
-        RecordService.setRecordStateListener(listener);
+        RecordHelper.getInstance().setRecordStateListener(listener);
     }
 
     /**
      * 录音数据监听回调
      */
     public void setRecordDataListener(RecordDataListener listener) {
-        RecordService.setRecordDataListener(listener);
+        RecordHelper.getInstance().setRecordDataListener(listener);
     }
 
     /**
      * 录音可视化数据回调，傅里叶转换后的频域数据
      */
     public void setRecordFftDataListener(RecordFftDataListener recordFftDataListener) {
-        RecordService.setRecordFftDataListener(recordFftDataListener);
+        RecordHelper.getInstance().setRecordFftDataListener(recordFftDataListener);
     }
 
     /**
      * 录音文件转换结束回调
      */
     public void setRecordResultListener(RecordResultListener listener) {
-        RecordService.setRecordResultListener(listener);
+        RecordHelper.getInstance().setRecordResultListener(listener);
     }
 
     /**
      * 录音音量监听回调
      */
     public void setRecordSoundSizeListener(RecordSoundSizeListener listener) {
-        RecordService.setRecordSoundSizeListener(listener);
-    }
-
-
-    public boolean changeFormat(RecordConfig.RecordFormat recordFormat) {
-        return RecordService.changeFormat(recordFormat);
-    }
-
-
-    public boolean changeRecordConfig(RecordConfig recordConfig) {
-        return RecordService.changeRecordConfig(recordConfig);
-    }
-
-    public RecordConfig getRecordConfig() {
-        return RecordService.getRecordConfig();
+        RecordHelper.getInstance().setRecordSoundSizeListener(listener);
     }
 
     /**
-     * 修改录音文件存放路径
+     * 录音时长监听回调
      */
-    public void changeRecordDir(String recordDir) {
-        RecordService.changeRecordDir(recordDir);
+    public void setRecordIngListener(RecordIngListener listener) {
+        RecordHelper.getInstance().setRecordIngListener(listener);
+    }
+
+
+    public RecordConfig getRecordConfig() {
+        if (recordConfig == null) {
+            recordConfig = new RecordConfig();
+        }
+        return recordConfig;
+    }
+
+    public void setRecordConfig(RecordConfig recordConfig) {
+        this.recordConfig = recordConfig;
     }
 
     /**
@@ -140,7 +119,7 @@ public class RecordManager {
      * @return 状态
      */
     public RecordHelper.RecordState getState() {
-        return RecordService.getState();
+        return RecordHelper.getInstance().getState();
     }
 
 }

@@ -2,12 +2,13 @@ package com.zlw.main.recorderlib.recorder;
 
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.zlw.main.recorderlib.RecordManager;
 import com.zlw.main.recorderlib.recorder.listener.RecordDataListener;
 import com.zlw.main.recorderlib.recorder.listener.RecordFftDataListener;
+import com.zlw.main.recorderlib.recorder.listener.RecordIngListener;
 import com.zlw.main.recorderlib.recorder.listener.RecordResultListener;
 import com.zlw.main.recorderlib.recorder.listener.RecordSoundSizeListener;
 import com.zlw.main.recorderlib.recorder.listener.RecordStateListener;
@@ -44,19 +45,23 @@ public class RecordHelper {
     private RecordSoundSizeListener recordSoundSizeListener;
     private RecordResultListener recordResultListener;
     private RecordFftDataListener recordFftDataListener;
+    private RecordIngListener recordIngListener;
     private RecordConfig currentConfig;
     private AudioRecordThread audioRecordThread;
     private Handler mainHandler = new Handler(Looper.getMainLooper());
+    private Handler countHandler;
+    private Runnable countRunnable;
 
     private File resultFile = null;
     private File tmpFile = null;
     private List<File> files = new ArrayList<>();
     private Mp3EncodeThread mp3EncodeThread;
+    private int duration = 0;
 
     private RecordHelper() {
     }
 
-    static RecordHelper getInstance() {
+    public static RecordHelper getInstance() {
         if (instance == null) {
             synchronized (RecordHelper.class) {
                 if (instance == null) {
@@ -67,23 +72,23 @@ public class RecordHelper {
         return instance;
     }
 
-    RecordState getState() {
+    public RecordState getState() {
         return state;
     }
 
-    void setRecordStateListener(RecordStateListener recordStateListener) {
+    public void setRecordStateListener(RecordStateListener recordStateListener) {
         this.recordStateListener = recordStateListener;
     }
 
-    void setRecordDataListener(RecordDataListener recordDataListener) {
+    public void setRecordDataListener(RecordDataListener recordDataListener) {
         this.recordDataListener = recordDataListener;
     }
 
-    void setRecordSoundSizeListener(RecordSoundSizeListener recordSoundSizeListener) {
+    public void setRecordSoundSizeListener(RecordSoundSizeListener recordSoundSizeListener) {
         this.recordSoundSizeListener = recordSoundSizeListener;
     }
 
-    void setRecordResultListener(RecordResultListener recordResultListener) {
+    public void setRecordResultListener(RecordResultListener recordResultListener) {
         this.recordResultListener = recordResultListener;
     }
 
@@ -91,12 +96,18 @@ public class RecordHelper {
         this.recordFftDataListener = recordFftDataListener;
     }
 
-    public void start(String filePath, RecordConfig config) {
-        this.currentConfig = config;
+    public void setRecordIngListener(RecordIngListener recordIngListener) {
+        this.recordIngListener = recordIngListener;
+    }
+
+    public void start() {
+        this.currentConfig = RecordManager.getInstance().getRecordConfig();
         if (state != RecordState.IDLE && state != RecordState.STOP) {
             Logger.e(TAG, "状态异常当前状态： %s", state.name());
             return;
         }
+        String fileName = String.format(Locale.getDefault(), "record_%s", FileUtils.getNowString(new SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.SIMPLIFIED_CHINESE)));
+        String filePath = String.format(Locale.getDefault(), "%s%s%s", currentConfig.getRecordDir(), fileName, currentConfig.getFormat().getExtension());
         resultFile = new File(filePath);
         String tempFilePath = getTempFilePath();
 
@@ -105,13 +116,26 @@ public class RecordHelper {
         Logger.i(TAG, "pcm缓存 tmpFile: %s", tempFilePath);
         Logger.i(TAG, "录音文件 resultFile: %s", filePath);
 
-
         tmpFile = new File(tempFilePath);
         audioRecordThread = new AudioRecordThread();
         audioRecordThread.start();
+
+        duration = 0;
+        countHandler = new Handler(Looper.getMainLooper());
+        countRunnable = () -> {
+            countHandler.postDelayed(countRunnable, 1000);
+            if (recordIngListener != null) {
+                recordIngListener.onDuration(duration);
+            }
+            duration++;
+        };
+        countHandler.postDelayed(countRunnable, 0);
     }
 
     public void stop() {
+        if (countHandler != null) {
+            countHandler.removeCallbacks(countRunnable);
+        }
         if (state == RecordState.IDLE) {
             Logger.e(TAG, "状态异常当前状态： %s", state.name());
             return;
@@ -128,7 +152,10 @@ public class RecordHelper {
         }
     }
 
-    void pause() {
+    public void pause() {
+        if (countHandler != null) {
+            countHandler.removeCallbacks(countRunnable);
+        }
         if (state != RecordState.RECORDING) {
             Logger.e(TAG, "状态异常当前状态： %s", state.name());
             return;
@@ -137,7 +164,10 @@ public class RecordHelper {
         notifyState();
     }
 
-    void resume() {
+    public void resume() {
+        if (countHandler != null) {
+            countHandler.postDelayed(countRunnable, 1000);
+        }
         if (state != RecordState.PAUSE) {
             Logger.e(TAG, "状态异常当前状态： %s", state.name());
             return;
@@ -231,7 +261,7 @@ public class RecordHelper {
         for (int i = offsetStart; i < length; i++) {
             sum += data[i] * data[i];
         }
-        ave = sum / (length - offsetStart) ;
+        ave = sum / (length - offsetStart);
         return (int) (Math.log10(ave) * 20);
     }
 
@@ -456,7 +486,7 @@ public class RecordHelper {
      * 实例 record_20160101_13_15_12
      */
     private String getTempFilePath() {
-        String fileDir = String.format(Locale.getDefault(), "%s/Record/", Environment.getExternalStorageDirectory().getAbsolutePath());
+        String fileDir = String.format(Locale.getDefault(), "%s/Record/", currentConfig.getRecordDir());
         if (!FileUtils.createOrExistsDir(fileDir)) {
             Logger.e(TAG, "文件夹创建失败：%s", fileDir);
         }

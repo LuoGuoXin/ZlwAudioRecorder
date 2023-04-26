@@ -2,8 +2,6 @@ package com.main.zlw.zlwaudiorecorder;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -14,38 +12,27 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.main.zlw.zlwaudiorecorder.base.MyApp;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.runtime.Permission;
-import com.zlw.loggerlib.Logger;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.zlw.main.recorderlib.RecordManager;
-import com.zlw.main.recorderlib.recorder.RecordConfig;
 import com.zlw.main.recorderlib.recorder.RecordHelper;
 import com.zlw.main.recorderlib.recorder.listener.RecordFftDataListener;
 import com.zlw.main.recorderlib.recorder.listener.RecordResultListener;
 import com.zlw.main.recorderlib.recorder.listener.RecordStateListener;
+import com.zlw.main.recorderlib.utils.Logger;
 
 import java.io.File;
-import java.util.Locale;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+
 
 public class TestHzActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private static final String TAG = TestHzActivity.class.getSimpleName();
 
-    @BindView(R.id.btRecord)
     Button btRecord;
-    @BindView(R.id.btStop)
     Button btStop;
-    @BindView(R.id.tvState)
     TextView tvState;
-    @BindView(R.id.audioView)
     AudioView audioView;
-    @BindView(R.id.spUpStyle)
     Spinner spUpStyle;
-    @BindView(R.id.spDownStyle)
     Spinner spDownStyle;
 
     private boolean isStart = false;
@@ -61,7 +48,7 @@ public class TestHzActivity extends AppCompatActivity implements AdapterView.OnI
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         setContentView(R.layout.activity_hz);
-        ButterKnife.bind(this);
+        findView();
         initPermission();
         initAudioView();
     }
@@ -78,6 +65,15 @@ public class TestHzActivity extends AppCompatActivity implements AdapterView.OnI
         recordManager.stop();
     }
 
+    private void findView() {
+        btRecord = findViewById(R.id.btRecord);
+        btStop = findViewById(R.id.btStop);
+        tvState = findViewById(R.id.tvState);
+        audioView = findViewById(R.id.audioView);
+        spUpStyle = findViewById(R.id.spUpStyle);
+        spDownStyle = findViewById(R.id.spDownStyle);
+    }
+
     private void initAudioView() {
         audioView.setStyle(AudioView.ShowStyle.STYLE_ALL, AudioView.ShowStyle.STYLE_ALL);
         tvState.setVisibility(View.GONE);
@@ -92,20 +88,14 @@ public class TestHzActivity extends AppCompatActivity implements AdapterView.OnI
 
 
     private void initPermission() {
-        AndPermission.with(this)
-                .runtime()
-                .permission(new String[]{Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE,
-                        Permission.RECORD_AUDIO})
-                .start();
+//        AndPermission.with(this)
+//                .runtime()
+//                .permission(new String[]{Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE,
+//                        Permission.RECORD_AUDIO})
+//                .start();
     }
 
     private void initRecord() {
-        recordManager.init(MyApp.getInstance(), BuildConfig.DEBUG);
-        recordManager.changeFormat(RecordConfig.RecordFormat.WAV);
-        String recordDir = String.format(Locale.getDefault(), "%s/Record/com.zlw.main/",
-                Environment.getExternalStorageDirectory().getAbsolutePath());
-        recordManager.changeRecordDir(recordDir);
-
         recordManager.setRecordStateListener(new RecordStateListener() {
             @Override
             public void onStateChange(RecordHelper.RecordState state) {
@@ -155,7 +145,6 @@ public class TestHzActivity extends AppCompatActivity implements AdapterView.OnI
         });
     }
 
-    @OnClick({R.id.btRecord, R.id.btStop})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btRecord:

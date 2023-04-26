@@ -16,7 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -28,12 +30,8 @@
             android:name=".TestHzActivity"
             android:label="test"
             android:screenOrientation="landscape"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+            android:theme="@style/AppTheme" />
 
-        <service
-            android:name="com.zlw.main.recorderlib.recorder.RecordService"
-            android:enabled="true"
-            android:exported="false" />
     </application>
 
 </manifest>

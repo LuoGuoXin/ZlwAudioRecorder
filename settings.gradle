@@ -1,1 +1,50 @@
-include ':app', ':recorderlib'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+        maven {
+            url 'https://maven.aliyun.com/nexus/content/groups/public/'
+        }
+        maven {
+            url 'https://maven.aliyun.com/nexus/content/repositories/jcenter'
+        }
+        maven { url "https://jitpack.io" }
+        maven { url 'https://www.jitpack.io' }
+        maven { url 'https://repo1.maven.org/maven2/' }
+        maven {
+            url MAVEN_URL
+            credentials {
+                username MAVEN_USERNAME
+                password MAVEN_PASSWORD
+            }
+        }
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url 'https://maven.aliyun.com/nexus/content/groups/public/'
+        }
+        maven {
+            url 'https://maven.aliyun.com/nexus/content/repositories/jcenter'
+        }
+        maven { url "https://jitpack.io" }
+        maven { url 'https://www.jitpack.io' }
+        maven { url 'https://repo1.maven.org/maven2/' }
+        maven {
+            url MAVEN_URL
+            credentials {
+                username MAVEN_USERNAME
+                password MAVEN_PASSWORD
+            }
+        }
+    }
+}
+rootProject.name = "ZIwAudioRecorder"
+include ':app'
+include ':recorderlib'
+

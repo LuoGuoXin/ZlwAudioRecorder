@@ -1,7 +1,7 @@
 package com.zlw.main.recorderlib.recorder.mp3;
 
+import com.zlw.main.recorderlib.RecordManager;
 import com.zlw.main.recorderlib.recorder.RecordConfig;
-import com.zlw.main.recorderlib.recorder.RecordService;
 import com.zlw.main.recorderlib.utils.Logger;
 
 import java.io.File;
@@ -36,7 +36,7 @@ public class Mp3EncodeThread extends Thread {
     public Mp3EncodeThread(File file, int bufferSize) {
         this.file = file;
         mp3Buffer = new byte[(int) (7200 + (bufferSize * 2 * 1.25))];
-        RecordConfig currentConfig = RecordService.getCurrentConfig();
+        RecordConfig currentConfig = RecordManager.getInstance().getRecordConfig();
         int sampleRate = currentConfig.getSampleRate();
 
         Logger.w(TAG, "in_sampleRate:%s，getChannelCount:%s ，out_sampleRate：%s 位宽： %s,",

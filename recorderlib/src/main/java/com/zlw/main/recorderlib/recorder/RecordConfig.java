@@ -11,9 +11,9 @@ import java.util.Locale;
  */
 public class RecordConfig implements Serializable {
     /**
-     * 录音格式 默认WAV格式
+     * 录音格式 默认Mp3格式
      */
-    private RecordFormat format = RecordFormat.WAV;
+    private RecordFormat format = RecordFormat.MP3;
     /**
      * 通道数:默认单通道
      */
@@ -27,10 +27,10 @@ public class RecordConfig implements Serializable {
     /**
      * 采样率
      */
-    private int sampleRate = 16000;
+    private int sampleRate = 44100;
 
     /*
-        * 录音文件存放路径，默认sdcard/Record
+     * 录音文件存放路径，默认data/Record
      */
     private String recordDir = String.format(Locale.getDefault(),
             "%s/Record/",
@@ -75,7 +75,7 @@ public class RecordConfig implements Serializable {
      * @return 采样位宽 0: error
      */
     public int getEncoding() {
-        if(format == RecordFormat.MP3){//mp3后期转换
+        if (format == RecordFormat.MP3) {//mp3后期转换
             return 16;
         }
 
@@ -139,7 +139,7 @@ public class RecordConfig implements Serializable {
     }
 
     public int getEncodingConfig() {
-        if(format == RecordFormat.MP3){//mp3后期转换
+        if (format == RecordFormat.MP3) {//mp3后期转换
             return AudioFormat.ENCODING_PCM_16BIT;
         }
         return encodingConfig;

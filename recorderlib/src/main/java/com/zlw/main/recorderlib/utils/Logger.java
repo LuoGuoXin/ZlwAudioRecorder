@@ -15,7 +15,7 @@ public class Logger {
     private static final String TAG = Logger.class.getSimpleName();
     private static final int LOG_LENGTH_LIMITATION = 4000;
 
-    public static boolean IsDebug = true;
+    public static boolean IsDebug = false;
 
     private static final String space = "====================================================================================================";
     private static boolean LOGV = true;
